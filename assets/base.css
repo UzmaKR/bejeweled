@@ -1,0 +1,24 @@
+body {
+  font-family: fantasy ;
+}
+
+footer table {
+	border: 1px solid black;
+	margin-top: 1em;
+}
+
+footer table tr td {
+	border: 1px solid black ;
+	width: 5em;
+	height: 2em;
+}
+
+#board {
+	border: 5px solid purple ;
+}
+
+#board tr td {
+	border: 1px solid black ;
+	width: 2.5em;
+	height: 2.5em;
+}
