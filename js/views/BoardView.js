@@ -13,8 +13,21 @@ app.BoardView = Backbone.View.extend({
 
     //generate the gem locations of the board in 2D array
     this.currentBoardState = app.BoardGame.genInitBoardState();
+    this.render();
   },
 
-  
+  render: function() {
+    var self = this;
+    for (var i = 0; i < 8; i++) {
+    	var row = this.board.find('#row'+(i+1));
+    	var j = 0;
+    	row.children().each(function() {
+          var view = new app.SquareView( {model: self.currentBoardState[i][j]} );
+          (view.render().$el).appendTo($(this));
+          j++;
+    	});
+    }
+   }
 
 });
+

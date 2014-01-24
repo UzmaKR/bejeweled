@@ -15,6 +15,8 @@ footer table tr td {
 
 #board {
 	border: 5px solid purple ;
+	float: left;
+	margin-right: 5em;
 }
 
 #board tr td {
