@@ -4,30 +4,42 @@ app.BoardView = Backbone.View.extend({
 
   el: '#bejeweled',
 
-  currentBoardState: '',
+  genInitBoardState: function() {
+    var gems = 'ABCDE';
+    for ( var i = 0; i < 8; i++ ) {
+      for (var j=0; j < 8; j++ ) {
+          app.BoardGame.create( {value: gems[Math.floor(Math.random() * gems.length)],
+                             state: false,
+                             x: i,
+                             y: j } );
+      }
+    }
+  },
 
   initialize: function() {
   	//Grab the DOM elements to the game board and input field.
     this.board = this.$('#board');
     this.username = this.$('#user-name');
 
-    //generate the gem locations of the board in 2D array
-    this.currentBoardState = app.BoardGame.genInitBoardState();
-    this.render();
+    //generate the gem locations
+    this.genInitBoardState();
+    this.renderInit();
   },
 
-  render: function() {
+  renderInit: function() {
     var self = this;
-    for (var i = 0; i < 8; i++) {
-    	var row = this.board.find('#row'+(i+1));
-    	var j = 0;
-    	row.children().each(function() {
-          var view = new app.SquareView( {model: self.currentBoardState[i][j]} );
-          (view.render().$el).appendTo($(this));
-          j++;
-    	});
-    }
-   }
+
+    app.BoardGame.forEach(function(item) {
+      var row = item.get('x');
+      var col = item.get('y');
+      var rowDom = self.board.find('#row'+(row+1));
+      var cellDom = rowDom.find('.col'+(col+1));
+      var view = new app.SquareView( {model: item} );
+      (view.render().$el).appendTo(cellDom);
+
+    });
+
+  }
 
 });
 
