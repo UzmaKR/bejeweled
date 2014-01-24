@@ -13,8 +13,7 @@
   		<input id="user-name" placeholder="Username" autofocus>
       <label for="user-name">Please enter username to save your score</label> 
   	</header>
-  	<section id="main">
-      <table id="board">
+    <table id="board">
   		<tr id="row1">
         <td></td>
         <td></td>
@@ -96,7 +95,6 @@
         <td></td>
       </tr>
     </table>
-  	</section>
   	<footer>
       <table>
         <tr><th colspan="2">Highest Score</th></tr>
@@ -120,9 +118,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.0/backbone.localStorage-min.js"></script>
   <script src="js/models/square.js"></script>
   <script src="js/collections/board.js"></script>
-  <script src="js/views/app.js"></script>
-  <script src="js/views/square.js"></script>
-  <script src="js/routers/router.js"></script>
+  <script src="js/views/SquareView.js"></script>
+  <script src="js/views/BoardView.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
