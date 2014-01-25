@@ -31,6 +31,7 @@ app.BoardView = Backbone.View.extend({
     this.username = this.$('#user-name');
 
     this.listenTo(app.BoardGame, 'change:state', this.startMove);
+    // this.listenTo(app.BoardGame, 'change:value', this.render);
 
     //generate the gem locations
     this.genInitBoardState();
@@ -53,15 +54,15 @@ app.BoardView = Backbone.View.extend({
   },
 
   startMove: function(e) {
-    if !(e.get('state')) { //when tile is toggled off, do nothing
+    if (!(e.get('state'))) { //when tile is toggled off, do nothing
       this.numOfClicks = 0;
-      return;
+      return
     }
 
     if (this.numOfClicks) { //1st click has already been made
       this.numOfClicks = 0; //reset on 2nd click
       if (this.sideBySideTiles(e)) { //check if tiles are side by side
-        //app.BoardGame.tileSwap();
+        app.BoardGame.tileSwap(this.tilePairCoords);
       } else {
         app.BoardGame.resetRound();
       }

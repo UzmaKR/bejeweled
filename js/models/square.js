@@ -9,6 +9,14 @@ app.Square = Backbone.Model.extend({
 		y: 0
 	},
 
+	getVal: function() {
+		return this.get('value');
+	},
+
+	setVal: function(v) {
+		return this.set('value',v);
+	},
+
 	toggle: function() {
 	  this.set("state", !this.get('state') );
 	}

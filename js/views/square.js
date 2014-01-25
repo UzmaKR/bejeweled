@@ -9,6 +9,10 @@ app.SquareView = Backbone.View.extend({
 	'click': 'toggleState'
   },
 
+  initialize: function() {
+    this.listenTo(this.model, 'change:value', this.render);
+  },
+
   toggleState: function() {
     this.model.toggle();
   },
