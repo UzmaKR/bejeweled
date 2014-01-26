@@ -16,11 +16,11 @@ var Board = Backbone.Collection.extend({
     tile2.toggle();
   },
 
-  tileSwap: function(tilePairCoords) {
-    var x1 = tilePairCoords.x1;
-    var y1 = tilePairCoords.y1;
-    var x2 = tilePairCoords.x2;
-    var y2 = tilePairCoords.y2;
+  tileSwap: function(x1,y1,x2,y2) {
+    var x1 = x1;
+    var y1 = y1;
+    var x2 = x2;
+    var y2 = y2;
     var tile1 = this.getModel(x1, y1);
     var tile2 = this.getModel(x2, y2);
     var temp = tile1.get('value');
@@ -29,30 +29,31 @@ var Board = Backbone.Collection.extend({
   },
 
   
-
-  findIdenticalTiles: function(tilePairCoords) {
+  completeRound: function(tilePairCoords) {
     var x1 = tilePairCoords.x1;
     var y1 = tilePairCoords.y1;
     var x2 = tilePairCoords.x2;
     var y2 = tilePairCoords.y2;
-   
+
+    this.tileSwap(x1,y1,x2,y2);
     var listMatchedTiles1 = this.findMatchedTiles(x1,y1); //find for 1st tile
     var listMatchedTiles2 = this.findMatchedTiles(x2,y2); //find for 2nd tile
-
+    
     //merge two Matched Tile arrays and remove duplicates
+    var allTileSets = this.mergeAndRemoveDuplicates(listMatchedTiles1,listMatchedTiles2);
+    
+    this.nullify(allTileSets);
 
 
+  },
+
+  nullify: function(tileSets) {  //eliminate value in each tile
+    var arr1 = tileSets;
     var self = this;
-    listMatchedTiles1.forEach(function(coords) {
-      var model1 = self.getModel(coords[0],coords[1]);
-      model1.setVal('');
-    })
-
-    listMatchedTiles2.forEach(function(coords) {
-      var model2 = self.getModel(coords[0],coords[1]);
-      model2.setVal('');
-    })
-
+    arr1.forEach(function(coords) {
+      var model = self.getModel(coords[0],coords[1]);
+      model.setVal('');
+    });
 
   },
 
@@ -199,6 +200,36 @@ var Board = Backbone.Collection.extend({
       return [0,0];
     }
   },
+
+  mergeAndRemoveDuplicates: function(arr1, arr2) {
+
+    var array1 = arr1;
+    var array2 = arr2;
+    if (array1.length === 0) return array2;
+    if (array2.length === 0) return array1;
+
+    var hashUniqueCoords = {};
+    var listOfAllMatchedTiles = [];
+
+    array1.forEach(function(coord) {
+      if (hashUniqueCoords[JSON.stringify(coord)] === undefined) {
+        hashUniqueCoords[JSON.stringify(coord)] = 1;
+      }
+    });
+
+    array2.forEach(function(coord) {
+      if (hashUniqueCoords[JSON.stringify(coord)] === undefined) {
+        hashUniqueCoords[JSON.stringify(coord)] = 1;
+      }
+    });
+
+    for ( var key in hashUniqueCoords) {
+        listOfAllMatchedTiles.push(JSON.parse(key));
+    };
+
+    return listOfAllMatchedTiles;
+
+  }
 
 
 

@@ -61,8 +61,9 @@ app.BoardView = Backbone.View.extend({
     if (this.numOfClicks) { //1st click has already been made
       this.numOfClicks = 0; //reset on 2nd click
       if (this.sideBySideTiles(e)) { //check if tiles are side by side
-        app.BoardGame.tileSwap(this.tilePairCoords);
-        app.BoardGame.findIdenticalTiles(this.tilePairCoords);
+        app.BoardGame.completeRound(this.tilePairCoords);
+        // app.BoardGame.tileSwap(this.tilePairCoords);
+        // app.BoardGame.findIdenticalTiles(this.tilePairCoords);
       } else {
         app.BoardGame.resetRound();
       }
