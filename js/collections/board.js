@@ -30,6 +30,7 @@ var Board = Backbone.Collection.extend({
 
   
   completeRound: function(tilePairCoords) {
+    console.log('got in completeRound');
     var x1 = tilePairCoords.x1;
     var y1 = tilePairCoords.y1;
     var x2 = tilePairCoords.x2;
@@ -41,15 +42,38 @@ var Board = Backbone.Collection.extend({
 
     if ((listMatchedTiles1.length === 0) && (listMatchedTiles2.length === 0)) {
       this.tileSwap(x1,y1,x2,y2);
+      console.log('Invalid move. Try again.');
       return;
     }
     
     //merge two Matched Tile arrays and remove duplicates
-    var allTileSets = this.mergeAndRemoveDuplicates(listMatchedTiles1,listMatchedTiles2);
-    
+    //var allTileSets = this.mergeAndRemoveDuplicates(listMatchedTiles1,listMatchedTiles2);
+    var allTileSets = listMatchedTiles1.concat(listMatchedTiles2);
+
+
     this.nullify(allTileSets);
 
-    this.dropTilesFillinNewTiles(allTileSets);
+    var prevDropTileInfo = this.dropTilesFillinNewTiles(allTileSets);
+    console.log('first tile match done');
+    //continue to find the tile matches as long they exist
+    while (true) {
+      var newTileMatches = [];
+      prevDropTileInfo.forEach(function(tileCoord) {
+        var y = tileCoord[1]; //each column
+        var x = tileCoord[0]; //xmax
+        for (var i = 0; i < x + 1; i++) {
+          newTileMatches = newTileMatches.concat(this.findMatchedTiles(i,y));
+        }
+      }, this);
+      if (newTileMatches.length === 0) {
+        console.log('no new tile matches found');
+        return;
+      } else {
+        console.log('new tile matches found');
+        this.nullify(newTileMatches);
+        prevDropTileInfo = this.dropTilesFillinNewTiles(newTileMatches);
+      }
+    }
 
 
   },
@@ -239,6 +263,7 @@ var Board = Backbone.Collection.extend({
   },
 
   dropTilesFillinNewTiles: function(setOfIdenticalTiles) {
+    console.log('got in dropTiles method');
 
     //Get range of columns from identical tile sets
     //Get max row(x) for each column
@@ -263,7 +288,7 @@ var Board = Backbone.Collection.extend({
     //Now, iterate through each column 
     dropTileIterator.forEach(function(coord) { //in each column
       //generate array of empty tile coordinates
-      var emptyTiles = _.filter(tileSet, function(tile) { return coord[1] === tile[1] });
+      // var emptyTiles = _.filter(tileSet, function(tile) { return coord[1] === tile[1] });
       var nonEmptyTiles = [];
       var allTiles = [];
       //generate array of all tiles from xmax to x=0; also create array of nonempty tiles
@@ -295,7 +320,7 @@ var Board = Backbone.Collection.extend({
 
     }, this)
 
-
+    return dropTileIterator;
 
   }
 
