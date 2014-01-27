@@ -38,17 +38,24 @@ var Board = Backbone.Collection.extend({
     this.tileSwap(x1,y1,x2,y2);
     var listMatchedTiles1 = this.findMatchedTiles(x1,y1); //find for 1st tile
     var listMatchedTiles2 = this.findMatchedTiles(x2,y2); //find for 2nd tile
+
+    if ((listMatchedTiles1.length === 0) && (listMatchedTiles2.length === 0)) {
+      this.tileSwap(x1,y1,x2,y2);
+      return;
+    }
     
     //merge two Matched Tile arrays and remove duplicates
     var allTileSets = this.mergeAndRemoveDuplicates(listMatchedTiles1,listMatchedTiles2);
     
     this.nullify(allTileSets);
 
+    this.dropTilesFillinNewTiles(allTileSets);
+
 
   },
 
   nullify: function(tileSets) {  //eliminate value in each tile
-    var arr1 = tileSets;
+    var arr1 = tileSets.slice(0);
     var self = this;
     arr1.forEach(function(coords) {
       var model = self.getModel(coords[0],coords[1]);
@@ -203,9 +210,9 @@ var Board = Backbone.Collection.extend({
 
   mergeAndRemoveDuplicates: function(arr1, arr2) {
 
-    var array1 = arr1;
-    var array2 = arr2;
-    if (array1.length === 0) return array2;
+    var array1 = arr1.slice(0);
+    var array2 = arr2.slice(0);
+    if (array1.length === 0) return array2; //In case of 1 matched set, just return that set
     if (array2.length === 0) return array1;
 
     var hashUniqueCoords = {};
@@ -228,6 +235,67 @@ var Board = Backbone.Collection.extend({
     };
 
     return listOfAllMatchedTiles;
+
+  },
+
+  dropTilesFillinNewTiles: function(setOfIdenticalTiles) {
+
+    //Get range of columns from identical tile sets
+    //Get max row(x) for each column
+    //Then for each column: 1. start at xmax, add nonempty tiles from bottom
+    // 2. Then add random alphabets.
+
+    var gems = 'ABCDEF';
+    var tileSet = setOfIdenticalTiles.slice(0);
+    var colIndices = _.map(tileSet, function(coord) { return coord[1] });
+    //array of unique columns
+    var uniqYs = _.filter(colIndices, function(value, index) { return colIndices.indexOf(value) === index });
+  
+    var dropTileIterator = [];
+
+    //generate array of (xmax, y), where xmax is largest (empty) row value for each column
+    uniqYs.forEach(function(y) {
+      var intermArr = _.filter(tileSet, function(coord) { return coord[1] === y });
+      var xmax = _.max(intermArr, function(coord) { return coord[0] });
+      dropTileIterator.push([xmax[0],y]);
+    })
+
+    //Now, iterate through each column 
+    dropTileIterator.forEach(function(coord) { //in each column
+      //generate array of empty tile coordinates
+      var emptyTiles = _.filter(tileSet, function(tile) { return coord[1] === tile[1] });
+      var nonEmptyTiles = [];
+      var allTiles = [];
+      //generate array of all tiles from xmax to x=0; also create array of nonempty tiles
+      for (var x = coord[0]; x >= 0; x-- ) {
+        //allTiles 0th item starts at xmax
+        allTiles.push([x,coord[1]]);
+        if (this.getModel(x,coord[1]).get('value') != '') {
+          //non empty tiles array's 0th item starts at xmax row.
+          nonEmptyTiles.push([x,coord[1]]);
+        }
+      }
+
+      //for each column, start *dropping* tiles from bottom-most tile
+      for (var i = 0; i < nonEmptyTiles.length; i++) {
+        
+        var x1 = nonEmptyTiles[i][0];
+        var y1 = nonEmptyTiles[i][1];
+        var newVal = this.getModel(x1,y1).get('value');
+
+        var x2 = allTiles[i][0];
+        var y2 = allTiles[i][1];
+        this.getModel(x2,y2).setVal(newVal);
+      }
+
+      //for remaining tiles at the top, generate random alphabets
+      for (var z = (coord[0] - nonEmptyTiles.length); z >=0 ; z--) {
+        this.getModel(z,coord[1]).setVal(gems[Math.floor(Math.random() * gems.length)]);
+      }
+
+    }, this)
+
+
 
   }
 

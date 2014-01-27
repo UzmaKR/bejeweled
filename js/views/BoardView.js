@@ -14,7 +14,7 @@ app.BoardView = Backbone.View.extend({
   },
 
   genInitBoardState: function() {
-    var gems = 'ABCDE';
+    var gems = 'ABCDEF';
     for ( var i = 0; i < 8; i++ ) {
       for (var j=0; j < 8; j++ ) {
           app.BoardGame.create( {value: gems[Math.floor(Math.random() * gems.length)],
@@ -30,6 +30,7 @@ app.BoardView = Backbone.View.extend({
     this.board = this.$('#board');
     this.username = this.$('#user-name');
 
+    // this.listenTo(app.BoardGame, 'change:state', this.startMove);
     this.listenTo(app.BoardGame, 'change:state', this.startMove);
 
     //generate the gem locations
@@ -53,21 +54,17 @@ app.BoardView = Backbone.View.extend({
   },
 
   startMove: function(e) {
-    if (!(e.get('state'))) { //when tile is toggled off, do nothing
+    if (!(e.get('state'))) { //when tile is clicked twice, do nothing
       this.numOfClicks = 0;
       return;
     }
-
+    
     if (this.numOfClicks) { //1st click has already been made
       this.numOfClicks = 0; //reset on 2nd click
       if (this.sideBySideTiles(e)) { //check if tiles are side by side
-        app.BoardGame.completeRound(this.tilePairCoords);
-        // app.BoardGame.tileSwap(this.tilePairCoords);
-        // app.BoardGame.findIdenticalTiles(this.tilePairCoords);
-      } else {
-        app.BoardGame.resetRound();
+        app.BoardGame.completeRound(this.tilePairCoords); //Start the swap/drop process
       }
-      
+      app.BoardGame.resetRound();
     } else { //on 1st click
       this.numOfClicks = 1;
       this.set1stClickCoords(e);
