@@ -16,14 +16,26 @@ app.BoardView = Backbone.View.extend({
   currentPlayer: '',
 
   events: {
-    'keypress #user-name': 'createUser'
+    'keypress #user-name': 'createUser',
+    'click #end-game': 'endGame'
   },
 
   createUser: function(e) {
     if ((e.keyCode === ENTER_KEY) && (this.username.val().trim() != '')) {
       var name = this.username.val().trim();
       app.Users.create({username: name, totalScore: 0});
+
     }
+  },
+
+  endGame: function() {
+    this.currentPlayer = '';
+    this.$('div #user-info').remove();
+    //find highest Score and display it
+    var hiScoreDom = this.footer.find('#hiScore');
+    (hiScoreDom).html(""+app.Users.getHighestScore());
+    var hiNameDom = this.footer.find('#hiUsername');
+    (hiNameDom).html(""+app.Users.getHighestScoreName());
   },
 
   genInitBoardState: function() {
@@ -63,14 +75,6 @@ app.BoardView = Backbone.View.extend({
       var view = new app.SquareView( {model: item} );
       (view.render().$el).appendTo(cellDom);
     });
-
-    //Add highest score
-    // if (app.Users.length != 0) {
-    //   var hiScoreDom = self.footer.find('#hiScore');
-    // (hiScoreDom).html(""+app.Users.getHighestScore());
-    //   var hiNameDom = self.footer.find('#hiUsername');
-    // (hiNameDom).html(""+app.Users.getHighestScoreName());
-    // }
   },
 
   startMove: function(e) {

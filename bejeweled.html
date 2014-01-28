@@ -11,7 +11,9 @@
   	<header id="header">
   		<h1>Bejeweled</h1>
   		<input id="user-name" placeholder="Username" autofocus>
-      <label for="user-name">Please enter username to save your score</label> 
+      <label for="user-name">Please enter username to save your score and start game</label> 
+      <div><button id="end-game">End Game</button><label for="end-game"> End game to allow other user to play</label>
+      </div>
   	</header>
     <table id="board">
   		<tr id="row1">
@@ -84,7 +86,7 @@
         <td class="col7"></td>
         <td class="col8"></td>
       </tr>
-      <tr id="row8">
+        <tr id="row8">
         <td class="col1"></td>
         <td class="col2"></td>
         <td class="col3"></td>
@@ -93,9 +95,9 @@
         <td class="col6"></td>
         <td class="col7"></td>
         <td class="col8"></td>
-      </tr>
-    </table>
-  	<footer>
+        </tr>
+      </table>
+      <footer>
       <table>
         <tr><th colspan="2">Highest Score</th></tr>
         <tr id="highest-score">
@@ -113,6 +115,9 @@
         <td><%= totalScore %></td>
       </tr>
     </table>
+  </script>
+  <script type="text" id="">
+
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>

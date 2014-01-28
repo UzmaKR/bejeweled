@@ -13,9 +13,13 @@ footer table tr td, #user-info tr td {
 	height: 2em;
 }
 
+#end-game {
+	width: 125px;
+}
+
 #board {
-	border: 5px solid purple ;
 	float: left;
+	border: 5px solid purple ;
 	margin-right: 5em;
 }
 
