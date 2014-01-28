@@ -2,6 +2,10 @@ body {
   font-family: fantasy ;
 }
 
+footer {
+	float: left;
+}
+
 footer table, #user-info {
 	border: 1px solid black;
 	margin-top: 1em;
@@ -27,4 +31,11 @@ footer table tr td, #user-info tr td {
 	border: 1px solid black ;
 	width: 2.5em;
 	height: 2.5em;
+}
+
+#err-msgs {
+	width: 30%;
+	color: red;
+	clear: both;
+	padding-top: 1em;
 }

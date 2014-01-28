@@ -29,8 +29,8 @@ app.BoardView = Backbone.View.extend({
   },
 
   endGame: function() {
-    this.currentPlayer = '';
-    this.$('div #user-info').remove();
+    this.currentPlayer = ''; //remove current player from state
+    this.$('div #user-info').remove();  //remove current user/score table
     //find highest Score and display it
     var hiScoreDom = this.footer.find('#hiScore');
     (hiScoreDom).html(""+app.Users.getHighestScore());
@@ -55,9 +55,11 @@ app.BoardView = Backbone.View.extend({
     this.board = this.$('#board');
     this.username = this.$('#user-name');
     this.footer = this.$('footer');
+    this.errmsg = this.$('#err-msgs');
 
     this.listenTo(app.BoardGame, 'change:state', this.startMove);
     this.listenTo(app.Users, 'add', this.addUser);
+    this.listenTo(app.BoardGame, 'invalidmove', this.printErrMsg);
     //generate the gem locations
     this.genInitBoardState();
     this.renderInit();
@@ -78,12 +80,12 @@ app.BoardView = Backbone.View.extend({
   },
 
   startMove: function(e) {
-    console.log('startMove');
+
     if (!(e.get('state'))) { //when tile is clicked twice, do nothing
       this.numOfClicks = 0;
       return;
     }
-    
+
     if (this.numOfClicks) { //1st click has already been made
       this.numOfClicks = 0; //reset on 2nd click
       if (this.sideBySideTiles(e)) { //check if tiles are side by side
@@ -92,6 +94,7 @@ app.BoardView = Backbone.View.extend({
       }
       this.resetRound();
     } else { //on 1st click
+      (this.errmsg).html('');
       this.numOfClicks = 1;
       this.set1stClickCoords(e);
     }
@@ -102,6 +105,10 @@ app.BoardView = Backbone.View.extend({
     (view.render().$el).appendTo(this.footer);
     //sets currentPlayer to new user name
     this.currentPlayer = user.getUsername();
+  },
+
+  printErrMsg: function() {
+    (this.errmsg).html('Invalid Move. Please try again.');
   },
 
   set1stClickCoords: function(e) {

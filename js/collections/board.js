@@ -28,7 +28,7 @@ var Board = Backbone.Collection.extend({
     tile2.setVal(temp);
   },
 
-  calcScore: function(numTiles) {//update for separate tile type
+  calcScore: function(numTiles) {//each tile type gets 25 points
     return numTiles * 25;
   },
 
@@ -46,6 +46,7 @@ var Board = Backbone.Collection.extend({
 
     if ((listMatchedTiles1.length === 0) && (listMatchedTiles2.length === 0)) {
       this.tileSwap(x1,y1,x2,y2); //an invalid move; revert back to original tile locations
+      this.trigger('invalidmove');
       return 0;
     }
     
