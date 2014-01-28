@@ -3,7 +3,7 @@ var app = app || {};
 var Board = Backbone.Collection.extend({
   model: app.Square,
 
-  localStorage: new Backbone.LocalStorage('bejeweled-backbone'),
+  localStorage: new Backbone.LocalStorage('bejeweled-backbone-board'),
 
   getModel: function(x1,y1) {
     return this.findWhere( {x: x1, y: y1} );
@@ -28,9 +28,13 @@ var Board = Backbone.Collection.extend({
     tile2.setVal(temp);
   },
 
+  calcScore: function(numTiles) {//update for separate tile type
+    return numTiles * 25;
+  },
+
   
   completeRound: function(tilePairCoords) {
-    console.log('got in completeRound');
+    
     var x1 = tilePairCoords.x1;
     var y1 = tilePairCoords.y1;
     var x2 = tilePairCoords.x2;
@@ -41,21 +45,22 @@ var Board = Backbone.Collection.extend({
     var listMatchedTiles2 = this.findMatchedTiles(x2,y2); //find for 2nd tile
 
     if ((listMatchedTiles1.length === 0) && (listMatchedTiles2.length === 0)) {
-      this.tileSwap(x1,y1,x2,y2);
-      console.log('Invalid move. Try again.');
-      return;
+      this.tileSwap(x1,y1,x2,y2); //an invalid move; revert back to original tile locations
+      return 0;
     }
     
-    //merge two Matched Tile arrays and remove duplicates
-    //var allTileSets = this.mergeAndRemoveDuplicates(listMatchedTiles1,listMatchedTiles2);
+    //merge two Matched Tile arrays 
     var allTileSets = listMatchedTiles1.concat(listMatchedTiles2);
-
-
+    
+    //update score
+    var playerScore = this.calcScore(allTileSets.length);
+    console.log('player score after tile swap is: ', playerScore);
+    console.log('tile matches are: ', allTileSets);
     this.nullify(allTileSets);
 
     var prevDropTileInfo = this.dropTilesFillinNewTiles(allTileSets);
     console.log('first tile match done');
-    //continue to find the tile matches as long they exist
+    //continue to find the tile matches in region of new tiles
     while (true) {
       var newTileMatches = [];
       prevDropTileInfo.forEach(function(tileCoord) {
@@ -67,15 +72,19 @@ var Board = Backbone.Collection.extend({
       }, this);
       if (newTileMatches.length === 0) {
         console.log('no new tile matches found');
-        return;
+        //return playerScore;
+        break;
       } else {
         console.log('new tile matches found');
+        console.log('new tile matches are: ', newTileMatches);
+        playerScore += this.calcScore(newTileMatches.length);
+        console.log('new player score is: ', playerScore);
         this.nullify(newTileMatches);
         prevDropTileInfo = this.dropTilesFillinNewTiles(newTileMatches);
       }
     }
 
-
+    return playerScore;
   },
 
   nullify: function(tileSets) {  //eliminate value in each tile

@@ -13,6 +13,19 @@ app.BoardView = Backbone.View.extend({
     y2: -1
   },
 
+  currentPlayer: '',
+
+  events: {
+    'keypress #user-name': 'createUser'
+  },
+
+  createUser: function(e) {
+    if ((e.keyCode === ENTER_KEY) && (this.username.val().trim() != '')) {
+      var name = this.username.val().trim();
+      app.Users.create({username: name, totalScore: 0});
+    }
+  },
+
   genInitBoardState: function() {
     var gems = 'ABCDEF';
     for ( var i = 0; i < 8; i++ ) {
@@ -29,9 +42,10 @@ app.BoardView = Backbone.View.extend({
   	//Grab the DOM elements to the game board and input field.
     this.board = this.$('#board');
     this.username = this.$('#user-name');
+    this.footer = this.$('footer');
 
     this.listenTo(app.BoardGame, 'change:state', this.startMove);
-
+    this.listenTo(app.Users, 'add', this.addUser);
     //generate the gem locations
     this.genInitBoardState();
     this.renderInit();
@@ -48,8 +62,15 @@ app.BoardView = Backbone.View.extend({
       var cellDom = rowDom.find('.col'+(col+1));
       var view = new app.SquareView( {model: item} );
       (view.render().$el).appendTo(cellDom);
-
     });
+
+    //Add highest score
+    // if (app.Users.length != 0) {
+    //   var hiScoreDom = self.footer.find('#hiScore');
+    // (hiScoreDom).html(""+app.Users.getHighestScore());
+    //   var hiNameDom = self.footer.find('#hiUsername');
+    // (hiNameDom).html(""+app.Users.getHighestScoreName());
+    // }
   },
 
   startMove: function(e) {
@@ -62,13 +83,21 @@ app.BoardView = Backbone.View.extend({
     if (this.numOfClicks) { //1st click has already been made
       this.numOfClicks = 0; //reset on 2nd click
       if (this.sideBySideTiles(e)) { //check if tiles are side by side
-        app.BoardGame.completeRound(this.tilePairCoords); //Start the swap/drop process
+        var roundScore = app.BoardGame.completeRound(this.tilePairCoords); //Start the swap/drop process
+        app.Users.updateUserScore(roundScore, this.currentPlayer);
       }
       this.resetRound();
     } else { //on 1st click
       this.numOfClicks = 1;
       this.set1stClickCoords(e);
     }
+  },
+
+  addUser: function(user) {
+    var view = new app.UserView({model: user});
+    (view.render().$el).appendTo(this.footer);
+    //sets currentPlayer to new user name
+    this.currentPlayer = user.getUsername();
   },
 
   set1stClickCoords: function(e) {

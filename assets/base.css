@@ -2,12 +2,12 @@ body {
   font-family: fantasy ;
 }
 
-footer table {
+footer table, #user-info {
 	border: 1px solid black;
 	margin-top: 1em;
 }
 
-footer table tr td {
+footer table tr td, #user-info tr td {
 	border: 1px solid black ;
 	width: 5em;
 	height: 2em;

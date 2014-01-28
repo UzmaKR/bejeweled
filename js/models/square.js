@@ -5,6 +5,7 @@ app.Square = Backbone.Model.extend({
 	default: {
 		value: '',
 		state: false, //if clicked on, state of square is true
+		score: 25,
 		x: 0,
 		y: 0
 	},
