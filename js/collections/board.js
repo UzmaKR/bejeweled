@@ -56,12 +56,11 @@ var Board = Backbone.Collection.extend({
     
     //update score
     var playerScore = this.calcScore(uniqueTiles.length);
-    console.log('player score after tile swap is: ', playerScore);
-    console.log('tile matches are: ', allTileSets);
+    
     this.nullify(uniqueTiles);
 
     var prevDropTileInfo = this.dropTilesFillinNewTiles(uniqueTiles);
-    console.log('first tile match done');
+  
     //continue to find the tile matches in region of new tiles
     while (true) {
       var newTileMatches = [];
@@ -74,14 +73,9 @@ var Board = Backbone.Collection.extend({
       }, this);
       var newUniqueTiles = this.removeDuplicates(newTileMatches);
       if (newUniqueTiles.length === 0) {
-        console.log('no new tile matches found');
-        //return playerScore;
         break;
       } else {
-        console.log('new tile matches found');
-        console.log('new tile matches are: ', newTileMatches);
         playerScore += this.calcScore(newUniqueTiles.length);
-        console.log('new player score is: ', playerScore);
         this.nullify(newUniqueTiles);
         prevDropTileInfo = this.dropTilesFillinNewTiles(newUniqueTiles);
       }
@@ -266,7 +260,6 @@ var Board = Backbone.Collection.extend({
   },
 
   dropTilesFillinNewTiles: function(setOfIdenticalTiles) {
-    console.log('got in dropTiles method');
 
     //Get range of columns from identical tile sets
     //Get max row(x) for each column
