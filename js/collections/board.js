@@ -52,14 +52,15 @@ var Board = Backbone.Collection.extend({
     
     //merge two Matched Tile arrays 
     var allTileSets = listMatchedTiles1.concat(listMatchedTiles2);
+    var uniqueTiles = this.removeDuplicates(allTileSets);
     
     //update score
-    var playerScore = this.calcScore(allTileSets.length);
+    var playerScore = this.calcScore(uniqueTiles.length);
     console.log('player score after tile swap is: ', playerScore);
     console.log('tile matches are: ', allTileSets);
-    this.nullify(allTileSets);
+    this.nullify(uniqueTiles);
 
-    var prevDropTileInfo = this.dropTilesFillinNewTiles(allTileSets);
+    var prevDropTileInfo = this.dropTilesFillinNewTiles(uniqueTiles);
     console.log('first tile match done');
     //continue to find the tile matches in region of new tiles
     while (true) {
@@ -71,17 +72,18 @@ var Board = Backbone.Collection.extend({
           newTileMatches = newTileMatches.concat(this.findMatchedTiles(i,y));
         }
       }, this);
-      if (newTileMatches.length === 0) {
+      var newUniqueTiles = this.removeDuplicates(newTileMatches);
+      if (newUniqueTiles.length === 0) {
         console.log('no new tile matches found');
         //return playerScore;
         break;
       } else {
         console.log('new tile matches found');
         console.log('new tile matches are: ', newTileMatches);
-        playerScore += this.calcScore(newTileMatches.length);
+        playerScore += this.calcScore(newUniqueTiles.length);
         console.log('new player score is: ', playerScore);
-        this.nullify(newTileMatches);
-        prevDropTileInfo = this.dropTilesFillinNewTiles(newTileMatches);
+        this.nullify(newUniqueTiles);
+        prevDropTileInfo = this.dropTilesFillinNewTiles(newUniqueTiles);
       }
     }
 
@@ -127,24 +129,24 @@ var Board = Backbone.Collection.extend({
     }
 
     var topAndBottomCount = this.vertMidCheck(x1,y1);  //Check for matches where tile is in the middle
-    if ( topAndBottomCount[0] > 0) {                    // Vertical check
+    if ( topAndBottomCount[0] >= 2) {                    // Vertical check
       for (var i = 0; i < topAndBottomCount[0]; i++) {
         listOfIdenticalTiles.push([x1-i,y1]);
       }
     }
-    if ( topAndBottomCount[1] > 0) {
+    if ( topAndBottomCount[1] >= 2) {
       for (var i = 0; i < topAndBottomCount[1]; i++) {
         listOfIdenticalTiles.push([x1+i,y1]);
       }
     }
 
     var leftAndRightCount = this.horzMidCheck(x1,y1);    //Horizontal middle check
-    if ( leftAndRightCount[0] > 0) {
+    if ( leftAndRightCount[0] >= 2) {
       for (var i = 0; i < leftAndRightCount[0]; i++) {
         listOfIdenticalTiles.push([x1,y1-i]);
       }
     }
-    if ( leftAndRightCount[1] > 0) {
+    if ( leftAndRightCount[1] >= 2) {
       for (var i = 0; i < leftAndRightCount[1]; i++) {
         listOfIdenticalTiles.push([x1,y1+i]);
       }
@@ -242,15 +244,12 @@ var Board = Backbone.Collection.extend({
     }
   },
 
-  mergeAndRemoveDuplicates: function(arr1, arr2) {
+  removeDuplicates: function(arr1) {
 
     var array1 = arr1.slice(0);
-    var array2 = arr2.slice(0);
-    if (array1.length === 0) return array2; //In case of 1 matched set, just return that set
-    if (array2.length === 0) return array1;
 
     var hashUniqueCoords = {};
-    var listOfAllMatchedTiles = [];
+    var listOfUniqueMatchedTiles = [];
 
     array1.forEach(function(coord) {
       if (hashUniqueCoords[JSON.stringify(coord)] === undefined) {
@@ -258,17 +257,11 @@ var Board = Backbone.Collection.extend({
       }
     });
 
-    array2.forEach(function(coord) {
-      if (hashUniqueCoords[JSON.stringify(coord)] === undefined) {
-        hashUniqueCoords[JSON.stringify(coord)] = 1;
-      }
-    });
-
     for ( var key in hashUniqueCoords) {
-        listOfAllMatchedTiles.push(JSON.parse(key));
+        listOfUniqueMatchedTiles.push(JSON.parse(key));
     };
 
-    return listOfAllMatchedTiles;
+    return listOfUniqueMatchedTiles;
 
   },
 

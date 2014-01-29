@@ -29,7 +29,7 @@ app.BoardView = Backbone.View.extend({
   },
 
   endGame: function() {
-    this.currentPlayer = ''; //remove current player from state
+    this.currentPlayer = ''; //remove current player name
     this.$('div #user-info').remove();  //remove current user/score table
     //find highest Score and display it
     var hiScoreDom = this.footer.find('#hiScore');
@@ -90,7 +90,9 @@ app.BoardView = Backbone.View.extend({
       this.numOfClicks = 0; //reset on 2nd click
       if (this.sideBySideTiles(e)) { //check if tiles are side by side
         var roundScore = app.BoardGame.completeRound(this.tilePairCoords); //Start the swap/drop process
-        app.Users.updateUserScore(roundScore, this.currentPlayer);
+        if (this.currentPlayer != '') {
+          app.Users.updateUserScore(roundScore, this.currentPlayer);
+        }
       }
       this.resetRound();
     } else { //on 1st click
