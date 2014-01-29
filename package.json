@@ -1,0 +1,18 @@
+{
+  "name"          : "bejeweled",
+  "description"   : "Lite version of bejeweled game made with backbonejs",
+  "url"           : "blooming-savannah-9807",
+  "keywords"      : ["boardgame"],
+  "author"        : "Uzma Rahman <uzma.rahman@>gmail.com",
+  "dependencies"  : {
+    "backbone"    : ">=1.1.0",
+    "underscore"  : ">=1.5.0",
+    "jquery"      : ">=2.0.3"
+  },
+  "main"          : "app.js",
+  "version"       : "1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uzmakr/bejeweled.git"
+  }
+}
