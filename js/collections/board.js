@@ -28,7 +28,7 @@ var Board = Backbone.Collection.extend({
     tile2.setVal(temp);
   },
 
-  calcScore: function(numTiles) {//each tile type gets 25 points
+  calcScore: function(numTiles) {//all tile types get 25 points each
     return numTiles * 25;
   },
 
@@ -56,17 +56,18 @@ var Board = Backbone.Collection.extend({
     
     //update score
     var playerScore = this.calcScore(uniqueTiles.length);
-    
+    //eliminate the matched tiles for the tile pair
     this.nullify(uniqueTiles);
-
+    //save the (max-row,col) information 
     var prevDropTileInfo = this.dropTilesFillinNewTiles(uniqueTiles);
   
     //continue to find the tile matches in region of new tiles
+    //use prevDropTileInfo to check region
     while (true) {
       var newTileMatches = [];
       prevDropTileInfo.forEach(function(tileCoord) {
         var y = tileCoord[1]; //each column
-        var x = tileCoord[0]; //xmax
+        var x = tileCoord[0]; //max row
         for (var i = 0; i < x + 1; i++) {
           newTileMatches = newTileMatches.concat(this.findMatchedTiles(i,y));
         }
