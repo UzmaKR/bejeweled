@@ -41,8 +41,11 @@ var Board = Backbone.Collection.extend({
     var y2 = tilePairCoords.y2;
 
     this.tileSwap(x1,y1,x2,y2);
+    
     var listMatchedTiles1 = this.findMatchedTiles(x1,y1); //find for 1st tile
+    console.log('match tiles for tile1: ', listMatchedTiles1);
     var listMatchedTiles2 = this.findMatchedTiles(x2,y2); //find for 2nd tile
+    console.log('match tiles for tile2: ', listMatchedTiles2);
 
     if ((listMatchedTiles1.length === 0) && (listMatchedTiles2.length === 0)) {
       this.tileSwap(x1,y1,x2,y2); //an invalid move; revert back to original tile locations
@@ -83,6 +86,7 @@ var Board = Backbone.Collection.extend({
     }
 
     return playerScore;
+  
   },
 
   nullify: function(tileSets) {  //eliminate value in each tile
@@ -96,147 +100,105 @@ var Board = Backbone.Collection.extend({
   },
 
   findMatchedTiles: function(x1,y1) {
+      
+    var x = x1;
+    var y = y1;
+
+    var targetVal = this.getModel(x,y).getVal();
+    var tileSet = [];
     var listOfIdenticalTiles = [];
-    var numOfMatches = this.leftCheck(x1,y1); //Check for matches left of tile
-    if (numOfMatches >= 3) {
-      for (var i = 0; i < numOfMatches; i++) {
-        listOfIdenticalTiles.push([x1,y1-i]);
+
+    var leftTilesResult = this.findTiles(targetVal,0,x,y,"left",tileSet);
+    console.log('left tiles results: ', leftTilesResult);
+    if (leftTilesResult[0] >= 3) {  //Check for matches left of tile
+      for (var i = 0; i < leftTilesResult[0]; i++) {
+        listOfIdenticalTiles.push(leftTilesResult[1][i]);
       }
     }
-    numOfMatches = this.rightCheck(x1,y1);    //Check for matches right of tile
-    if (numOfMatches >= 3) {
-      for (var i = 0; i < numOfMatches; i++) {
-        listOfIdenticalTiles.push([x1,y1+i]);
+    var rightTilesResult = this.findTiles(targetVal,0,x,y,"right",tileSet);
+    console.log('right tiles results: ', rightTilesResult);
+    if (rightTilesResult[0] >= 3) {  //Check for matches right of tile
+      for (var i = 0; i < rightTilesResult[0]; i++) {
+        listOfIdenticalTiles.push(rightTilesResult[1][i]);
       }
     }
-    numOfMatches = this.topCheck(x1,y1);     //Check for matches top of tile
-    if (numOfMatches >= 3) {
-      for (var i = 0; i < numOfMatches; i++) {
-        listOfIdenticalTiles.push([x1-i,y1]);
+    var topTilesResult = this.findTiles(targetVal,0,x,y,"top",tileSet);
+    console.log('top tiles results: ', topTilesResult);
+    if (topTilesResult[0] >= 3) {   //Check for matches top of tile
+      for (var i = 0; i < topTilesResult[0]; i++) {
+        listOfIdenticalTiles.push(topTilesResult[1][i]);
+      }
+    }
+    var bottomTilesResult = this.findTiles(targetVal,0,x,y,"bottom",tileSet);
+    console.log('bottom tiles results: ', bottomTilesResult);
+    if (bottomTilesResult[0] >= 3) {   //Check for matches bottom of tile
+      for (var i = 0; i < bottomTilesResult[0]; i++) {
+        listOfIdenticalTiles.push(bottomTilesResult[1][i]);
       }
     }
 
-    numOfMatches = this.bottomCheck(x1,y1);   //Check for matches bottom of tile
-    if (numOfMatches >= 3) {
-      for (var i = 0; i < numOfMatches; i++) {
-        listOfIdenticalTiles.push([x1+i,y1]);
+    if ((leftTilesResult[0] >= 2) && (rightTilesResult[0] >= 2)) {
+      for (var i = 0; i < leftTilesResult[0]; i++) {  //check for mid horizontal
+        listOfIdenticalTiles.push(leftTilesResult[1][i]);
+      }
+      for (var j = 0; j < rightTilesResult[0]; j++) {
+        listOfIdenticalTiles.push(rightTilesResult[1][j]);
       }
     }
 
-    var topAndBottomCount = this.vertMidCheck(x1,y1);  //Check for matches where tile is in the middle
-    if ( topAndBottomCount[0] >= 2) {                    // Vertical check
-      for (var i = 0; i < topAndBottomCount[0]; i++) {
-        listOfIdenticalTiles.push([x1-i,y1]);
+    if ((topTilesResult[0] >= 2) && (bottomTilesResult[0] >= 2)) {
+      for (var i = 0; i < topTilesResult[0]; i++) { //check for mid vertical
+        listOfIdenticalTiles.push(topTilesResult[1][i]);
       }
-    }
-    if ( topAndBottomCount[1] >= 2) {
-      for (var i = 0; i < topAndBottomCount[1]; i++) {
-        listOfIdenticalTiles.push([x1+i,y1]);
+      for (var j = 0; j < bottomTilesResult[0]; j++) {
+        listOfIdenticalTiles.push(bottomTilesResult[1][j]);
       }
     }
 
-    var leftAndRightCount = this.horzMidCheck(x1,y1);    //Horizontal middle check
-    if ( leftAndRightCount[0] >= 2) {
-      for (var i = 0; i < leftAndRightCount[0]; i++) {
-        listOfIdenticalTiles.push([x1,y1-i]);
-      }
-    }
-    if ( leftAndRightCount[1] >= 2) {
-      for (var i = 0; i < leftAndRightCount[1]; i++) {
-        listOfIdenticalTiles.push([x1,y1+i]);
-      }
-    }
     return listOfIdenticalTiles;
   },
 
-  leftCheck: function(x1,y1) {
-    var count = 1;
-    var targetVal = this.getModel(x1,y1).getVal();
-    var x = x1;
-    var y = y1-1;
-    while (y >= 0) {
-      var curr_value = this.getModel(x,y).getVal();
-      if (targetVal !== curr_value) {
-        break;
-      } else {
-        count=count+1
-        y=y-1;
+  findTiles: function(val,count,x,y,direction,tileSet) {
+    //Recursive method to find tile sets in each direction
+
+    //end of table is reached, return undefined
+    if ((this.getModel(x,y) === null) || (this.getModel(x,y) === undefined)) {
+      console.log('out of table');
+      return ;
+    }
+
+    var tileArray = tileSet.slice(0); //local copy of tile variables
+    var target = val;
+    var xNew = x;
+    var yNew = y;
+    var counter = count;
+    var dir = direction;
+    var newVal = this.getModel(xNew,yNew).getVal();
+    var rtn;
+
+    if (newVal === target) {
+      console.log('newVal is: ', newVal);
+      console.log('target is: ', target);
+      counter++;
+      tileArray.push([xNew,yNew]);
+      if (dir === "left") {
+        rtn = this.findTiles(target,counter,xNew,yNew-1,"left",tileArray);
+      } else if (dir === "right") {
+        rtn = this.findTiles(target,counter,xNew,yNew+1,"right",tileArray);
+      } else if (dir === "top") {
+        rtn = this.findTiles(target,counter,xNew-1,yNew,"top",tileArray);
+      } else if (dir === "bottom") {
+        rtn = this.findTiles(target,counter,xNew+1,yNew,"bottom",tileArray);
       }
     }
-    return count;
-  },
-
-  rightCheck: function(x1,y1) {
-    var count = 1;
-    var targetVal = this.getModel(x1,y1).getVal();
-    var x = x1;
-    var y = y1+1;
-    while (y <= 7) {
-      var curr_value = this.getModel(x,y).getVal();
-      if (targetVal !== curr_value) {
-        break;
-      } else {
-        count=count+1
-        y=y+1;
-      }
-    }
-    return count;
-  },
-
-  topCheck: function(x1,y1) {
-    var count = 1;
-    var targetVal = this.getModel(x1,y1).getVal();
-    var x = x1-1;
-    var y = y1;
-    while (x >= 0) {
-      var curr_value = this.getModel(x,y).getVal();
-      if (targetVal !== curr_value) {
-        break;
-      } else {
-        count=count+1
-        x=x-1;
-      }
-    }
-    return count;
-  },
-
-  bottomCheck: function(x1,y1) {
-    var count = 1;
-    var targetVal = this.getModel(x1,y1).getVal();
-    var x = x1+1;
-    var y = y1;
-    while (x <= 7) {
-      var curr_value = this.getModel(x,y).getVal();
-      if (targetVal !== curr_value) {
-        break;
-      } else {
-        count=count+1
-        x=x+1;
-      }
-    }
-    return count;
-  },
-
-  vertMidCheck: function(x1,y1) {
-    var topCount = this.topCheck(x1,y1);
-    var bottomCount = this.bottomCheck(x1,y1);
-
-    if ((topCount >= 2) && (bottomCount >= 2)) {
-      return [topCount,bottomCount];
+    if ((rtn === null) || (rtn === undefined)) {
+      console.log('rnt is null or undefined: ', rtn);
+     return [counter,tileArray];
     } else {
-      return [0,0];
+      console.log('rnt is not null/undefine: ', rtn);
+      return rtn;
     }
-  },
 
-  horzMidCheck: function(x1,y1) {
-    var leftCount = this.leftCheck(x1,y1);
-    var rightCount = this.rightCheck(x1,y1);
-
-    if ((leftCount >= 2) && (rightCount >= 2)) {
-      return [leftCount,rightCount];
-    } else {
-      return [0,0];
-    }
   },
 
   removeDuplicates: function(arr1) {
